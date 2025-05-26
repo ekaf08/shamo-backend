@@ -68,4 +68,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // TODO relasi one to mane dengan tabel transaction
+    public function transactions()
+    {
+        return $this->hasMany(Transactions::class, 'user_id', 'id');
+    }
 }
