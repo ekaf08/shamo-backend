@@ -74,4 +74,16 @@ class User extends Authenticatable
     {
         return $this->hasMany(Transactions::class, 'user_id', 'id');
     }
+    // TODO relasi one to many dengan tabel transaction_item
+    public function user_items()
+    {
+    }
+
+
+
+    public function role()
+    {
+        $data = $this->belongsTo(Roles::class, 'role_id', 'id');
+        return $data;
+    }
 }
