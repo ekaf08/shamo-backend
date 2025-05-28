@@ -8,10 +8,50 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Helpers\ResponseFormatter;
-
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    public function fetch(Request $request)
+    {
+        return ResponseFormatter::success($request->user(), 'Berhasil');
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            $request->validate([
+                'username' => 'required',
+                'password' => 'required'
+            ]);
+
+            $credentials = request(['username', 'password']);
+            if (!Auth::attempt($credentials)) {
+                return ResponseFormatter::error([
+                    'message' => 'Unauthorized'
+                ], 'Password atau Username salah', 500);
+            }
+
+            $user = User::where('username', $request->username)->first();
+            if (!Hash::check($request->password, $user->password, [])) {
+                throw new \Exception('Invalid Credentials');
+            }
+
+            $tokenResult = $user->createToken('authToken')->plainTextToken;
+
+            return ResponseFormatter::success([
+                'access_token' => $tokenResult,
+                'token_type' => 'Bearer',
+                'user' => $user
+            ], 'Authenticated');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([
+                'message' => 'Something went wrong',
+                'error'   => $error->getMessage(),
+            ], 'Username atau Password salah', '500');
+        }
+    }
+
     public function register(Request $request)
     {
         try {
@@ -47,5 +87,15 @@ class UserController extends Controller
                 'error'   => $error->getMessage(),
             ], 'Autentikasi gagal', 500);
         }
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $data = $request->all();
+
+        $user = Auth::user();
+        $user->update($data);
+
+        return ResponseFormatter::success($user, 'Profile Updated');
     }
 }
