@@ -98,4 +98,14 @@ class UserController extends Controller
 
         return ResponseFormatter::success($user, 'Profile Updated');
     }
+
+    public function logout(Request $request)
+    {
+        $revokeToken = $request->user()->currentAccessToken()->delete();
+
+        return ResponseFormatter::success(
+            $revokeToken,
+            'Token Revoke'
+        );
+    }
 }
