@@ -41,7 +41,7 @@ class TransactionController extends Controller
         }
 
         return ResponseFormatter::success(
-            $transaction,
+            $transaction->paginate($limit),
             'Transaksi ditemukan2'
         );
     }
